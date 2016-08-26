@@ -259,7 +259,10 @@ function AdminDirectoryController($scope, $rootScope, $http, $route, template, m
 				$scope.initExportData()
 			},
 			onStructureClick: function(structure){
-				$scope.structure = structure
+                $scope.structure = structure
+                structure.getMetrics(function(){
+                    $scope.$apply()
+                })
 			}
 		},
 		{

@@ -515,5 +515,6 @@
     "userBook.profile.mergeKey" : "Clé de fusion",
     "userBook.profile.generate.mergeKey" : "Générer une clé de fusion",
     "userBook.profile.mergedLogins" : "Utilisateurs fusionnés",
-    "userBook.profile.mergeByKey" : "Fusionner des utilisateurs"
+    "userBook.profile.mergeByKey" : "Fusionner des utilisateurs",
+    "directory.metrics": "Métriques"
 }
