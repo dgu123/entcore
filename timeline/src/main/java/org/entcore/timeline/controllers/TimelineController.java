@@ -22,6 +22,7 @@ package org.entcore.timeline.controllers;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,12 +63,12 @@ import org.entcore.common.http.filter.ResourceFilter;
 import org.entcore.common.http.filter.SuperAdminFilter;
 import org.entcore.common.http.request.JsonHttpServerRequest;
 import org.entcore.common.notification.TimelineHelper;
-import org.entcore.common.notification.TimelineMailer;
 import org.entcore.common.notification.TimelineNotificationsLoader;
 import org.entcore.common.user.UserInfos;
 import fr.wseduc.security.SecuredAction;
 import org.entcore.timeline.events.DefaultTimelineEventStore;
 import org.entcore.timeline.events.TimelineEventStore;
+import org.entcore.timeline.mailer.TimelineMailer;
 import org.entcore.timeline.services.TimelineConfigService;
 import org.entcore.timeline.services.impl.DefaultTimelineConfigService;
 
@@ -445,9 +446,30 @@ public class TimelineController extends BaseController {
 		case "add":
 			final String sender = json.getString("sender");
 			if (sender == null || sender.startsWith("no-reply") || antiFlood.add(sender)) {
+				final JsonObject mailerFields = json.getObject("mailer-fields", new JsonObject()).copy();
+				json.removeField("mailer-fields");
+
+				final List<String> recipients = new ArrayList<>();
+				JsonArray recipientsArr = json.getArray("recipients");
+				for(Object o : recipientsArr){
+					JsonObject recipient = (JsonObject) o;
+					if(recipient.containsField("userId"))
+						recipients.add(recipient.getString("userId"));
+				}
+
 				store.add(json, new Handler<JsonObject>() {
 					public void handle(JsonObject result) {
 						handler.handle(result);
+						if("error".equals(result.getString("status", "error"))){
+							log.error("Error while adding timeline notification [" + result.getString("message", "") + "]");
+						} else {
+							mailer.sendImmediateMails(
+									mailerFields.getString("notification-name"),
+									mailerFields.getObject("notification"),
+									mailerFields.getObject("params"),
+									recipients
+									);
+						}
 					}
 				});
 			} else {

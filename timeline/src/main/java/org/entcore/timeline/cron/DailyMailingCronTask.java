@@ -19,7 +19,7 @@
 
 package org.entcore.timeline.cron;
 
-import org.entcore.common.notification.TimelineMailer;
+import org.entcore.timeline.mailer.TimelineMailer;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.logging.Logger;

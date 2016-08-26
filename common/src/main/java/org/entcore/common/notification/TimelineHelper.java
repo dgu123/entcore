@@ -19,7 +19,6 @@
 
 package org.entcore.common.notification;
 
-import fr.wseduc.webutils.I18n;
 import fr.wseduc.webutils.http.Renders;
 
 import org.entcore.common.user.UserInfos;
@@ -28,7 +27,6 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.eventbus.EventBus;
-import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.file.FileProps;
 import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.json.JsonArray;
@@ -41,7 +39,6 @@ import org.vertx.java.platform.Container;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -53,7 +50,6 @@ public class TimelineHelper {
 	private final EventBus eb;
 	private final Renders render;
 	private final Vertx vertx;
-	private final TimelineMailer timelineMailer;
 	private final TimelineNotificationsLoader notificationsLoader;
 	private final Container container;
 	private static final Logger log = LoggerFactory.getLogger(TimelineHelper.class);
@@ -64,7 +60,6 @@ public class TimelineHelper {
 		this.vertx = vertx;
 		this.container = container;
 		this.notificationsLoader = TimelineNotificationsLoader.getInstance(vertx);
-		this.timelineMailer = new TimelineMailer(vertx, eb, container);
 		loadTimelineI18n();
 		loadAssetsTimelineDirectory();
 	}
@@ -89,7 +84,11 @@ public class TimelineHelper {
 				.putString("action", "add")
 				.putString("type", notification.getString("type"))
 				.putString("event-type", notification.getString("event-type"))
-				.putArray("recipients", r);
+				.putArray("recipients", r)
+				.putObject("mailer-fields", new JsonObject()
+						.putObject("notification", notification)
+						.putString("notification-name", notificationName)
+						.putObject("params", params));
 		if (resource != null) {
 			event.putString("resource", resource);
 		}
@@ -105,14 +104,7 @@ public class TimelineHelper {
 			params.removeField("timeline-publish-date");
 		}
 		event.putObject("params", params);
-		eb.send(TIMELINE_ADDRESS, event, new Handler<Message<JsonObject>>() {
-			public void handle(Message<JsonObject> event) {
-				JsonObject result = event.body();
-				if(!"error".equals(result.getString("status", "error"))){
-					timelineMailer.sendImmediateMails(request, notificationName, notification, params, recipients);
-				}
-			}
-		});
+		eb.send(TIMELINE_ADDRESS, event);
 	}
 
 	/**

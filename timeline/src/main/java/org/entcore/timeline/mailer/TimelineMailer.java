@@ -17,7 +17,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-package org.entcore.common.notification;
+package org.entcore.timeline.mailer;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -33,6 +33,7 @@ import org.entcore.common.email.EmailFactory;
 import org.entcore.common.http.request.JsonHttpServerRequest;
 import org.entcore.common.neo4j.Neo4j;
 import org.entcore.common.neo4j.Neo4jResult;
+import org.entcore.common.notification.TimelineNotificationsLoader;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VoidHandler;
@@ -296,7 +297,7 @@ public class TimelineMailer {
 	 * @param templateParameters : Notification parameters
 	 * @param recipientIds : Recipients of the notification
 	 */
-	public void sendImmediateMails(final HttpServerRequest request, final String notificationName, final JsonObject notification,
+	public void sendImmediateMails(final String notificationName, final JsonObject notification,
 			final JsonObject templateParameters, final List<String> recipientIds){
 		//Get notification properties (mixin : admin console configuration which overrides default properties)
 		getNotificationProperties(notificationName, new Handler<JsonObject>() {
@@ -342,7 +343,7 @@ public class TimelineMailer {
 												translateTimeline(keys, domain, lang, new Handler<JsonArray>() {
 													public void handle(JsonArray translations) {
 														//Send mail containing the "immediate" notification
-														emailSender.sendEmail(request,
+														emailSender.sendEmail(null,
 															toByDomainLang.get(domain).get(lang),
 															null,
 															null,
