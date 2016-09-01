@@ -1,4 +1,4 @@
-"Login";"Nom";"Prénom"
+"Identifiant";"Login";"Nom";"Prénom";"Sconet"
 {{#list}}
-"{{login}}";"{{lastName}}";"{{firstName}}"
+"{{externalId}}";"{{login}}";"{{lastName}}";"{{firstName}}";"{{attachmentId}}"
 {{/list}}
