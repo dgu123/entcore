@@ -2622,7 +2622,7 @@ window.RTE = (function () {
 								return;
 							}
 								
-                            if (previousScroll === window.scrollY) {
+							if (previousScroll === (window.scrollY || window.pageYOffset)) {
                                 var placeEditorToolbar = requestAnimationFrame(sticky);
                                 return;
                             }
@@ -2632,8 +2632,8 @@ window.RTE = (function () {
 								element.css({ 'padding-top': toolbarElement.height() + 1 + 'px' });
 							}
 							var topDistance = element.offset().top - $('.height-marker').height();
-                            if (topDistance < window.scrollY) {
-                                topDistance = window.scrollY;
+							if (topDistance < (window.scrollY || window.pageYOffset)) {
+							    topDistance = (window.scrollY || window.pageYOffset);
                             }
                             if (topDistance > editZone.offset().top + editZone.height() - toolbarElement.height()) {
                                 topDistance = editZone.offset().top + editZone.height() - toolbarElement.height();
@@ -2659,7 +2659,7 @@ window.RTE = (function () {
                                 highlightZone.offset({ top: htmlZone.offset().top });
                             }, 100);
 
-                            previousScroll = window.scrollY;
+                            previousScroll = (window.scrollY || window.pageYOffset);
 
                             var placeEditorToolbar = requestAnimationFrame(sticky);
                         }
